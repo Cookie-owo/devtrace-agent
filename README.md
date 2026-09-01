@@ -1,6 +1,6 @@
-# Agent Py
+# DevPilot
 
-Agent Py 是一个本地优先的 AIOps 工作台。Vue 3 提供操作界面，FastAPI 提供 API 与 Agent 运行时，SQLite 保存用户归属的数据，Milvus 保存受权限控制的知识向量，腾讯云官方 CLS MCP Server 提供真实日志访问。
+DevPilot 是一个面向软件研发、测试与运维场景的 AI Agent 工作台。项目基于原有 AIOps Agent 工程底座演进，使用 Vue 3 提供操作界面，FastAPI 提供 API 与 Agent 运行时，SQLite 保存用户归属的数据，Milvus 保存受权限控制的知识向量，腾讯云官方 CLS MCP Server 提供真实日志访问。
 
 ## 当前功能
 
@@ -11,6 +11,7 @@ Agent Py 是一个本地优先的 AIOps 工作台。Vue 3 提供操作界面，F
 - **用户认证**：支持注册、登录、登出、认证状态恢复和当前用户信息查询；密码使用 Argon2 安全哈希，不保存明文。
 - **用户与 tenant 隔离**：聊天、消息、知识库、文档、向量、索引任务、MCP 连接、AIOps、证据、报告、反馈和工具审计均按当前用户隔离，越权访问返回统一权限错误。
 - **中文响应式工作台**：提供对话、知识库、智能诊断和 MCP 连接四个受保护路由，桌面与移动端共用一致导航和状态表达。
+- **研发测试诊断**：提供 CI/Test Failure Diagnosis、Safe Test Verification、Controlled Repair 和 Agent Evaluation 页面。
 - **统一操作反馈**：成功、提示和错误消息使用全局反馈组件展示，支持手动关闭并在 3 秒后自动消失。
 
 ### 流式聊天与 Agent
@@ -70,6 +71,8 @@ Agent Py 是一个本地优先的 AIOps 工作台。Vue 3 提供操作界面，F
 | `/knowledge` | 文档上传、切分预览、索引、重试、详情和删除 |
 | `/aiops` | 活跃告警、实时诊断、执行链、证据、报告和案例库 |
 | `/mcp` | MCP 连接配置、启停、检查与工具发现 |
+| `/ci-diagnosis` | CI 失败诊断、证据链、验证和受控修复 |
+| `/evaluation` | Evaluation Dataset、运行结果和指标对比 |
 
 ## 项目结构
 
