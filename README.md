@@ -1,6 +1,37 @@
 # DevPilot
 
-DevPilot 是一个面向软件研发、测试与运维场景的 AI Agent 工作台。项目基于原有 AIOps Agent 工程底座演进，使用 Vue 3 提供操作界面，FastAPI 提供 API 与 Agent 运行时，SQLite 保存用户归属的数据，Milvus 保存受权限控制的知识向量，腾讯云官方 CLS MCP Server 提供真实日志访问。
+DevPilot 是一个面向软件研发、测试与运维场景的全栈 AI Agent 工作台。项目基于原有 AIOps Agent 工程底座演进，将 CI 失败诊断、测试验证、受控修复和 Agent Evaluation 与知识库、实时对话、智能运维能力整合到统一平台。
+
+它解决研发团队在 CI 失败排查中的三个核心问题：测试日志、Git 变更和源代码信息分散；定位过程依赖个人经验；Agent 结论缺乏证据、验证和安全边界。DevPilot 通过 LangGraph 工作流、只读开发工具、结构化 Evidence、Safe Test Runner 和隔离式 Patch，将问题从发现推进到可验证报告。
+
+## 核心产品闭环
+
+```text
+用户提交 CI 失败
+  → FastAPI 创建任务
+  → BackgroundJobRuntime 异步调度
+  → LangGraph Planner / Executor / Replanner / Verifier
+  → 测试日志、Git、源码工具构建 Evidence
+  → Evidence-grounded Root Cause Report
+  → Safe Test Runner 验证
+  → 隔离工作区生成结构化 Patch
+  → 测试通过或安全回滚
+  → SSE 实时展示全过程
+```
+
+## 全栈工程实现
+
+- **前端**：Vue 3、TypeScript、Vite、Pinia；提供 Chat、Knowledge、AIOps、CI Diagnosis、Evaluation 和 MCP 管理页面，统一处理加载、错误、取消、重试和空状态。
+- **后端**：FastAPI Router / Service / Repository 分层，SQLAlchemy + SQLite 持久化，Alembic 管理迁移，BackgroundJobRuntime 执行长任务。
+- **前后端协作**：`packages/api-contracts` 维护共享 HTTP、错误码和 SSE 类型，Typed API Client / SSE Client 保证接口一致性。
+- **实时与可观测性**：SSE 推送任务状态、计划、步骤、工具调用、Evidence、验证和报告事件；Trace 记录延迟、失败原因、预算和审计信息。
+
+## 研发测试智能化
+
+- **CI 失败诊断**：通过测试日志、Git Diff、Git Log、源码读取和代码搜索，定位 API/DTO 回归、断言失败、依赖、配置、构建、超时和证据不足等问题。
+- **Safe Test Verification**：仅允许白名单测试命令，限制 Workspace Root、超时、取消和输出大小，验证诊断结论是否成立。
+- **Controlled Repair**：在隔离工作区应用结构化 Patch，限制修改文件范围；测试失败时回滚，原始仓库不写入，不自动 Commit/Push/PR。
+- **Agent Evaluation**：固定 Dataset 批量执行真实 CI Diagnosis Workflow，统计根因、确认、工具选择、证据支撑度、工具成功率、步骤数、延迟和失败率，并支持 Fault Injection。
 
 ## 当前功能
 
@@ -111,6 +142,19 @@ cp config/user.project.template.json config/user.project.json
 - `config/project.template.json`、`config/user.project.template.json`：可安全提交的配置模板。
 
 两个本地配置文件均被 Git 忽略。请阅读[配置与运维教程](docs/operations-and-monitoring.md)填写模型密钥、CLS 凭据与其他本机配置，禁止将真实凭据加入版本控制。
+
+## 测试工程与质量门禁
+
+项目将 Agent 本身作为需要验证的软件系统，测试覆盖：
+
+- 后端单元、Repository、数据库迁移和 API 测试；
+- LangGraph Workflow、Evidence Grounding、Verifier 和预算边界测试；
+- Tool Timeout、Tool Failure、空结果、证据冲突、预算耗尽和 Workflow 失败注入；
+- Safe Test Runner 命令白名单、路径越权和原始仓库只读测试；
+- BackgroundJob 重试、取消、幂等和失败恢复测试；
+- 前端页面、状态组件、SSE Client 和共享 Contracts 测试。
+
+提交前质量检查：`uv run pytest`、`uv run ruff check .`、`uv run pyright`、`npm run frontend:test`、`npm run frontend:typecheck` 和 `npm run contracts:typecheck`。
 
 ## 本地开发
 
