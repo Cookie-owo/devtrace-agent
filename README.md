@@ -83,7 +83,7 @@ packages/api-contracts 共享的 TypeScript HTTP 与 SSE 契约
 config/                可提交的配置模板与被 Git 忽略的本地 JSON 配置
 infra/                 Milvus 与 Alertmanager 基础设施 Compose 资产
 scripts/               本机启动脚本
-openspec/              OpenSpec 规格、变更与归档
+openspec/              OpenSpec 主规格（开发过程归档不随公开版本发布）
 docs/                  安装、架构与运维文档
 ```
 

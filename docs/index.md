@@ -1,22 +1,22 @@
 ---
 layout: home
-title: Super AI WIKI
+title: DevPilot 项目文档
 
 hero:
-  name: Super AI WIKI
-  text: 项目文档与 OpenSpec 变更记录
-  tagline: 从架构、安装和运维手册，到每一次提案、设计与交付任务。
+  name: DevPilot
+  text: 面向研发测试的 AI Agent 工作台
+  tagline: 架构、运行、诊断、验证、修复与评测文档。
   actions:
     - theme: brand
-      text: 浏览变更 WIKI
-      link: /changes/
+      text: 查看系统架构
+      link: /architecture
     - theme: alt
-      text: 项目基础
-      link: /foundation
+      text: 查看 Benchmark
+      link: /benchmark
 
 features:
-  - title: OpenSpec 变更
-    details: 直接引用 proposal、design、tasks 与 delta specs，保持单一事实来源。
+  - title: CI 失败诊断
+    details: 查看证据链诊断、测试验证与受控修复流程。
   - title: 安装与运行
     details: 提供 macOS、Linux 和 Windows 的依赖安装与本地启动说明。
   - title: AIOps 实践
