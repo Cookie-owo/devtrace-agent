@@ -12,6 +12,8 @@ import ChatView from "../views/ChatView.vue";
 import KnowledgeView from "../views/KnowledgeView.vue";
 import McpView from "../views/McpView.vue";
 import WorkspacePlaceholderView from "../views/WorkspacePlaceholderView.vue";
+import CiDiagnosisView from "../views/CiDiagnosisView.vue";
+import EvaluationView from "../views/EvaluationView.vue";
 
 export interface AuthRouteAccess {
   initialize(): Promise<void>;
@@ -60,6 +62,8 @@ export function createAppRouter(auth: AuthRouteAccess): Router {
             component: AiopsView,
             meta: { title: "智能诊断" }
           },
+          { path: "ci-diagnosis", name: "ci-diagnosis", component: CiDiagnosisView, meta: { title: "CI 测试诊断" } },
+          { path: "evaluation", name: "evaluation", component: EvaluationView, meta: { title: "Agent Evaluation" } },
           {
             path: "mcp",
             name: "mcp",

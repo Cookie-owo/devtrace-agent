@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Activity, BookOpen, Cable, MessageSquare } from "lucide-vue-next";
+import { Activity, BarChart3, BookOpen, Cable, MessageSquare, Bug } from "lucide-vue-next";
 
 defineProps<{ readonly activePath: string }>();
 
@@ -7,6 +7,8 @@ const entries = [
   { icon: MessageSquare, label: "对话", to: "/chat" },
   { icon: BookOpen, label: "知识库", to: "/knowledge" },
   { icon: Activity, label: "智能诊断", to: "/aiops" },
+  { icon: Bug, label: "CI 测试诊断", to: "/ci-diagnosis" },
+  { icon: BarChart3, label: "Agent 评测", to: "/evaluation" },
   { icon: Cable, label: "MCP 连接", to: "/mcp" }
 ] as const;
 </script>
@@ -32,6 +34,6 @@ const entries = [
 .workspace-navigation { display: grid; gap: 0.2rem; }
 .workspace-navigation__link { align-items: center; border-radius: var(--radius-sm); color: var(--rail-muted); display: flex; font-size: 0.9rem; font-weight: 560; gap: 0.72rem; min-height: 2.7rem; padding: 0 0.7rem; text-decoration: none; transition: background var(--transition-fast), color var(--transition-fast); }
 .workspace-navigation__link:hover { background: var(--rail-hover); color: var(--rail-text); }
-.workspace-navigation__link--active { background: #343538; color: #ffffff; font-weight: 650; }
-.workspace-navigation__link--active svg { color: #65d6b3; }
+.workspace-navigation__link--active { background: rgb(37 99 235 / 18%); color: #dbeafe; font-weight: 650; }
+.workspace-navigation__link--active svg { color: #60a5fa; }
 </style>

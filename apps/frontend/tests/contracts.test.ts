@@ -24,6 +24,14 @@ describe("frontend contract consumption", () => {
       "task.status",
       "report",
       "complete",
+      "ci.diagnosis.started",
+      "ci.plan.created",
+      "ci.tool.completed",
+      "ci.evidence.created",
+      "ci.verification.completed",
+      "ci.report.created",
+      "ci.diagnosis.failed",
+      "ci.diagnosis.cancelled",
       "error"
     ]);
   });

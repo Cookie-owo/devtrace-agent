@@ -8,6 +8,14 @@ export const SSE_EVENT_TYPES = [
   "task.status",
   "report",
   "complete",
+  "ci.diagnosis.started",
+  "ci.plan.created",
+  "ci.tool.completed",
+  "ci.evidence.created",
+  "ci.verification.completed",
+  "ci.report.created",
+  "ci.diagnosis.failed",
+  "ci.diagnosis.cancelled",
   "error"
 ] as const;
 
@@ -87,6 +95,12 @@ export interface CompleteSseEvent extends SseEventBase<"complete"> {
   readonly result?: unknown;
 }
 
+export interface CiDiagnosisSseEvent extends SseEventBase<
+  | "ci.diagnosis.started" | "ci.plan.created" | "ci.tool.completed"
+  | "ci.evidence.created" | "ci.verification.completed" | "ci.report.created"
+  | "ci.diagnosis.failed" | "ci.diagnosis.cancelled"
+> { readonly data: unknown; readonly sequence: number; }
+
 export interface ErrorSseEvent extends SseEventBase<"error"> {
   readonly error: ApiErrorMessage;
 }
@@ -99,4 +113,5 @@ export type SseEvent =
   | TaskStatusSseEvent
   | ReportSseEvent
   | CompleteSseEvent
+  | CiDiagnosisSseEvent
   | ErrorSseEvent;

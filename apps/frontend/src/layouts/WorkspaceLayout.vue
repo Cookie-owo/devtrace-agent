@@ -41,10 +41,10 @@ function runChat(operation: () => Promise<unknown>): void {
 <template>
   <div class="workspace-layout">
     <aside class="workspace-layout__rail">
-      <RouterLink class="workspace-layout__brand" to="/chat" aria-label="Super AI 工作台">
+      <RouterLink class="workspace-layout__brand" to="/chat" aria-label="DevPilot 研发工作台">
         <Sparkles :size="19" stroke-width="1.8" aria-hidden="true" />
-        <span>Super AI</span>
-        <small>智能工作台</small>
+        <span>DevPilot</span>
+        <small>研发智能工作台</small>
       </RouterLink>
       <WorkspaceNavigation :active-path="route.path">
         <template #chat-history>
@@ -91,7 +91,7 @@ function runChat(operation: () => Promise<unknown>): void {
 .workspace-layout { background: var(--canvas); color: var(--text-primary); display: grid; grid-template-columns: 16.5rem minmax(0, 1fr); min-height: 100vh; }
 .workspace-layout__rail { background: var(--rail); display: flex; flex-direction: column; min-height: 100vh; padding: 1rem 0.7rem; }
 .workspace-layout__brand { align-items: center; color: var(--rail-text); display: grid; gap: 0 0.58rem; grid-template-columns: auto minmax(0, 1fr); margin: 0.4rem 0.5rem 2rem; text-decoration: none; }
-.workspace-layout__brand svg { color: #65d6b3; grid-row: span 2; }
+.workspace-layout__brand svg { color: #60a5fa; grid-row: span 2; }
 .workspace-layout__brand span { font-size: 0.98rem; font-weight: 720; line-height: 1.15; }
 .workspace-layout__brand small { color: var(--rail-muted); font-size: 0.68rem; margin-top: 0.12rem; }
 .workspace-layout__account { align-items: center; border-top: 1px solid rgb(255 255 255 / 10%); display: grid; gap: 0.65rem; grid-template-columns: auto minmax(0, 1fr) auto; margin: auto 0.3rem 0; padding: 1rem 0.25rem 0.1rem; }
@@ -103,12 +103,13 @@ function runChat(operation: () => Promise<unknown>): void {
 .workspace-layout__account button { align-items: center; border-radius: var(--radius-sm); color: var(--rail-muted); display: inline-flex; height: 2rem; justify-content: center; width: 2rem; }
 .workspace-layout__account button:hover { background: var(--rail-hover); color: #fff; }
 .workspace-layout__main { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100dvh; min-width: 0; overflow: hidden; }
-.workspace-layout__header { align-items: center; background: rgb(247 247 248 / 88%); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; min-height: 4.65rem; padding: 0.85rem clamp(1.25rem, 3vw, 3.25rem); position: sticky; top: 0; z-index: 4; }
+.workspace-layout__header { align-items: center; background: rgb(255 255 255 / 86%); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; min-height: 4.65rem; padding: 0.85rem clamp(1.25rem, 3vw, 3.25rem); position: sticky; top: 0; z-index: 4; }
 .workspace-layout__header p { color: var(--text-tertiary); font-size: 0.72rem; font-weight: 650; letter-spacing: 0.04em; margin: 0 0 0.18rem; }
 .workspace-layout__header h1 { font-size: 1.18rem; font-weight: 700; letter-spacing: 0; margin: 0; }
 .workspace-layout__status { align-items: center; color: var(--status-success-text); display: inline-flex; font-size: 0.76rem; font-weight: 620; gap: 0.35rem; }
-.workspace-layout__status--degraded { color: var(--status-danger-text); }
+.workspace-layout__status svg { filter: drop-shadow(0 0 0.35rem rgb(16 185 129 / 34%)); } .workspace-layout__status--degraded { color: var(--status-danger-text); } .workspace-layout__status--degraded svg { filter: none; }
 .workspace-layout__content { height: 100%; min-height: 0; overflow: hidden; width: 100%; }
 .workspace-layout__mobile-nav { display: none; }
-@media (max-width: 760px) { .workspace-layout { display: block; padding-bottom: 4.75rem; } .workspace-layout__rail { display: none; } .workspace-layout__header { min-height: 4.25rem; padding: 0.75rem 1rem; } .workspace-layout__header h1 { font-size: 1.05rem; } .workspace-layout__status { font-size: 0.7rem; } .workspace-layout__content { padding: 1rem; } .workspace-layout__mobile-nav { background: var(--rail); border-top: 1px solid rgb(255 255 255 / 9%); bottom: 0; display: block; left: 0; padding: 0.25rem 0.35rem calc(0.25rem + env(safe-area-inset-bottom)); position: fixed; right: 0; z-index: 10; } .workspace-layout__mobile-nav :deep(.workspace-navigation) { display: grid; gap: 0.15rem; grid-template-columns: repeat(4, 1fr); } .workspace-layout__mobile-nav :deep(.workspace-navigation__link) { border-radius: 0.45rem; flex-direction: column; font-size: 0.66rem; gap: 0.2rem; justify-content: center; min-height: 3.85rem; padding: 0.3rem; } }
+@media (max-width: 760px) { .workspace-layout { display: block; padding-bottom: 4.75rem; } .workspace-layout__rail { display: none; } .workspace-layout__header { min-height: 4.25rem; padding: 0.75rem 1rem; } .workspace-layout__header h1 { font-size: 1.05rem; } .workspace-layout__status { font-size: 0.7rem; } .workspace-layout__content { min-height: calc(100dvh - 4.25rem); } .workspace-layout__mobile-nav { background: rgb(17 24 39 / 96%); border-top: 1px solid rgb(255 255 255 / 12%); backdrop-filter: blur(12px); bottom: 0; display: block; left: 0; padding: 0.25rem 0.35rem calc(0.25rem + env(safe-area-inset-bottom)); position: fixed; right: 0; z-index: 10; } .workspace-layout__mobile-nav :deep(.workspace-navigation) { display: grid; gap: 0.15rem; grid-template-columns: repeat(4, 1fr); } .workspace-layout__mobile-nav :deep(.workspace-navigation__link) { border-radius: 0.55rem; flex-direction: column; font-size: 0.66rem; gap: 0.2rem; justify-content: center; min-height: 3.85rem; padding: 0.3rem; } }
 </style>
+

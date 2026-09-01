@@ -1,20 +1,17 @@
 """Shared API and SSE error catalog."""
 
 ERROR_DEFINITIONS = {
-    "CHAT_CONTEXT_LIMIT_REACHED": (
-        "business",
-        409,
-        "上下文已达到 95%，请执行手动压缩后再继续对话。",
-    ),
+    "CHAT_CONTEXT_LIMIT_REACHED": ("business", 409, "上下文已达到 95%，请执行手动压缩后再继续对话。"),
+    "CHAT_PROVIDER_UNAVAILABLE": ("system", 503, "The model service is temporarily unavailable."),
+    "CHAT_PROVIDER_AUTHENTICATION": ("system", 502, "The model service authentication failed."),
+    "CHAT_TOOL_UNAVAILABLE": ("system", 502, "An external tool service is temporarily unavailable."),
+    "CHAT_EXECUTION_FAILED": ("system", 502, "The agent execution failed."),
+    "CHAT_STREAM_INTERRUPTED": ("system", 502, "The response stream was interrupted."),
     "AUTH_FORBIDDEN": ("auth", 403, "You do not have permission to access this resource."),
     "AUTH_INVALID_CREDENTIALS": ("auth", 401, "Invalid credentials."),
     "AUTH_SESSION_REVOKED": ("auth", 401, "The authentication session has been revoked."),
     "AUTH_UNAUTHENTICATED": ("auth", 401, "Authentication is required."),
-    "BUSINESS_CONFLICT": (
-        "business",
-        409,
-        "The requested operation conflicts with the current resource state.",
-    ),
+    "BUSINESS_CONFLICT": ("business", 409, "The requested operation conflicts with the current resource state."),
     "BUSINESS_NOT_FOUND": ("business", 404, "The requested resource was not found."),
     "VALIDATION_INVALID_ARGUMENT": ("validation", 400, "The request parameters are invalid."),
     "VALIDATION_MISSING_FIELD": ("validation", 422, "A required field is missing."),

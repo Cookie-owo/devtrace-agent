@@ -6,10 +6,11 @@
   "backend": {
     "host": "127.0.0.1",
     "port": 8000,
-    "memoryDatabaseUrl": "sqlite+aiosqlite:///./var/memory.sqlite3"
+    "memoryDatabaseUrl": "sqlite+aiosqlite:///./var/memory.sqlite3",
+    "workspaceRoots": []
   },
   "frontend": {
-    "title": "Super AI",
+    "title": "DevPilot",
     "apiBaseUrl": "http://127.0.0.1:8000",
     "publicAnalyticsKey": "local-dev-analytics-disabled"
   },

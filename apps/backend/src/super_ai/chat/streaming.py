@@ -25,7 +25,7 @@ from super_ai.chat.configuration import (
 from super_ai.chat.memory import ChatContextLimitReached, ChatMemoryService, memory_payload
 from super_ai.error_catalog import ERROR_DEFINITIONS
 from super_ai.llm import LlmProvider
-from super_ai.mcp_client import LocalMcpClient, create_current_time_tool
+from super_ai.mcp_client import LocalMcpClient, McpClientError, create_current_time_tool
 from super_ai.mcp_connections import McpConnectionService
 from super_ai.memory.repositories import (
     ChatMessageRecord,
@@ -323,7 +323,7 @@ class ChatStreamingService:
                 errorCategory=exc.__class__.__name__,
                 durationMs=elapsed_ms(started_at),
             )
-            yield _error_event("SYSTEM_INTERNAL_ERROR")
+            yield _error_event(_classify_chat_exception(exc))
             return
 
     async def build_system_prompt(self, *, owner_user_id: str) -> str:
@@ -521,8 +521,13 @@ class LangChainChatAgentRunner:
                 owner_user_id=request.owner_user_id
             )
         if mcp_client is not None:
-            await mcp_client.discover_tools()
-            tools.extend(await mcp_client.get_langchain_tools())
+            try:
+                await mcp_client.discover_tools()
+                tools.extend(await mcp_client.get_langchain_tools())
+            except McpClientError as exc:
+                # MCP is an optional tool source; an unavailable server must not
+                # make the core chat model unavailable.
+                logger.warning("MCP tools unavailable; continuing without MCP tools: %s", exc)
         agent = _create_langchain_agent(
             model=cast(Any, self._llm_provider.create_chat_model()),
             tools=tools,
@@ -798,6 +803,33 @@ def _sse_event(event_type: str, payload: Mapping[str, object]) -> dict[str, obje
         "timestamp": _now_iso(),
         **payload,
     }
+
+
+def _classify_chat_exception(exc: Exception) -> str:
+    """Map provider/tool failures to safe, actionable SSE error codes."""
+    text = f"{exc.__class__.__name__} {exc}".lower()
+    if any(
+        token in text
+        for token in ("api key", "apikey", "unauthorized", "authentication", "401")
+    ):
+        return "CHAT_PROVIDER_AUTHENTICATION"
+    if any(
+        token in text
+        for token in (
+            "timeout",
+            "timed out",
+            "connection",
+            "connecterror",
+            "rate limit",
+            "429",
+            "503",
+            "unavailable",
+        )
+    ):
+        return "CHAT_PROVIDER_UNAVAILABLE"
+    if any(token in text for token in ("mcp", "tool", "server")):
+        return "CHAT_TOOL_UNAVAILABLE"
+    return "CHAT_EXECUTION_FAILED"
 
 
 def _error_event(code: str) -> dict[str, object]:

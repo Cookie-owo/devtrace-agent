@@ -53,6 +53,20 @@ class ToolMessageLike:
     content: str
 
 
+@pytest.mark.parametrize(
+    ("error", "expected"),
+    [
+        (TimeoutError("model request timed out"), "CHAT_PROVIDER_UNAVAILABLE"),
+        (RuntimeError("401 unauthorized api key"), "CHAT_PROVIDER_AUTHENTICATION"),
+        (RuntimeError("mcp server connection refused"), "CHAT_TOOL_UNAVAILABLE"),
+        (RuntimeError("unexpected agent failure"), "CHAT_EXECUTION_FAILED"),
+    ],
+)
+def test_chat_exception_is_classified_for_actionable_sse_feedback(
+    error: Exception, expected: str
+) -> None:
+    assert _classify_chat_exception(error) == expected
+
 def test_agent_event_adapter_parses_tool_message_citations() -> None:
     citation = {
         "id": "chunk_1",
@@ -508,7 +522,7 @@ async def test_streaming_chat_emits_safe_error_without_partial_assistant_message
     assert all(event["event"] == "content.delta" for event in events[:-1])
     assert "".join(event["data"]["delta"] for event in events[:-1]) == "partial secret"
     assert events[-1]["event"] == "error"
-    assert events[-1]["data"]["error"]["code"] == "SYSTEM_INTERNAL_ERROR"
+    assert events[-1]["data"]["error"]["code"] == "CHAT_EXECUTION_FAILED"
     assert [message["role"] for message in detail_response.json()["data"]["messages"]] == ["user"]
 
 
@@ -546,7 +560,7 @@ async def test_streaming_chat_emits_error_when_assistant_persistence_fails() -> 
     assert "".join(cast(str, event["delta"]) for event in events[:-1]) == "partial answer"
     assert events[-1]["type"] == "error"
     error_payload = cast(dict[str, Any], events[-1]["error"])
-    assert error_payload["code"] == "SYSTEM_INTERNAL_ERROR"
+    assert error_payload["code"] == "CHAT_EXECUTION_FAILED"
     assert [message.role for message in chat_repository.messages] == ["user"]
 
 
@@ -655,3 +669,4 @@ def migrated_database_url(tmp_path: Path) -> str:
     config.set_main_option("sqlalchemy.url", f"sqlite+aiosqlite:///{database_path}")
     command.upgrade(config, "head")
     return f"sqlite+aiosqlite:///{database_path}"
+

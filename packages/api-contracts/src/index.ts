@@ -13,6 +13,7 @@ export const FOUNDATION_HEALTH_CONTRACT = {
 export * from "./auth";
 export * from "./background-jobs";
 export * from "./chat";
+export * from "./ci-diagnosis";
 export * from "./chat-configuration";
 export * from "./documents";
 export * from "./errors";

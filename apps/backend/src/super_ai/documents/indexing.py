@@ -507,7 +507,14 @@ def _knowledge_type(document: KnowledgeDocumentRecord) -> str:
 
 
 def _safe_failure_reason(exc: Exception) -> str:
+    # Milvus 不可用是本地基础设施问题，避免把底层 SDK 异常直接展示给用户。
     message = str(exc).strip()
+    if (
+        exc.__class__.__name__ == "MilvusException"
+        or "19530" in message
+        or "Fail connecting to server" in message
+    ):
+        return "向量数据库暂不可用（Milvus 19530 端口未连接）。请启动 Milvus 后重试索引。"
     if not message:
         message = exc.__class__.__name__
     return message[:500]

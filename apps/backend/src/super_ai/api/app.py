@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from hashlib import sha256
 from pathlib import Path, PurePosixPath
 from time import monotonic
-from typing import Annotated, Literal, Protocol, cast
+from typing import Annotated, Any, Literal, Protocol, cast
 from uuid import uuid4
 
 from fastapi import Depends, FastAPI, File, Form, Query, Request, UploadFile
@@ -56,6 +56,12 @@ from super_ai.chat.memory import (
     ChatMemoryService,
     memory_payload,
 )
+from super_ai.ci_diagnosis.api import (
+    build_ci_job_handler,
+    build_ci_repair_job_handler,
+    register_ci_routes,
+)
+from super_ai.ci_diagnosis.repository import SQLiteCiDiagnosticRepository
 from super_ai.documents import (
     ALLOWED_DOCUMENT_EXTENSIONS,
     DEFAULT_CHUNK_OVERLAP,
@@ -68,6 +74,8 @@ from super_ai.documents import (
     extract_indexable_text,
 )
 from super_ai.error_catalog import ERROR_DEFINITIONS
+from super_ai.evaluation.api import router as evaluation_router
+from super_ai.evaluation.repository import EvaluationRepository
 from super_ai.feedback import FeedbackError, UserFeedbackService
 from super_ai.foundation import get_foundation_info
 from super_ai.jobs import BackgroundJobContext, BackgroundJobRuntime, JobCancelled
@@ -318,7 +326,12 @@ def create_app(
     app = FastAPI(title="Super AI API", version="0.1.0", lifespan=lifespan)
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://127.0.0.1:5173", "http://localhost:5173"],
+        allow_origins=[
+            "http://127.0.0.1:5173",
+            "http://localhost:5173",
+            "http://127.0.0.1:5174",
+            "http://localhost:5174",
+        ],
         allow_methods=["*"],
         allow_headers=["*"],
     )
@@ -332,6 +345,8 @@ def create_app(
     app.state.auth_service = AuthService(SQLiteAuthRepository(session_factory))
     repositories = create_sqlite_memory_repositories(session_factory)
     app.state.memory_repositories = repositories
+    app.state.ci_diagnosis_repository = SQLiteCiDiagnosticRepository(session_factory)
+    app.state.evaluation_repository = EvaluationRepository(session_factory)
     app.state.vector_store = vector_store or build_default_milvus_vector_store(
         config_path=resolved_project_config_path
     )
@@ -346,9 +361,14 @@ def create_app(
     background_runtime = BackgroundJobRuntime(repositories.background_jobs)
     background_runtime.register("document_index", _document_index_job_handler(app))
     background_runtime.register("aiops_diagnosis", _aiops_job_handler(app))
+    background_runtime.register("ci_diagnosis", build_ci_job_handler(app))
+    background_runtime.register("ci_repair", build_ci_repair_job_handler(app))
+    background_runtime.register("evaluation_run", _evaluation_job_handler(app))
     app.state.background_job_runtime = background_runtime
     app.state.index_task_scheduler = index_task_scheduler or DurableDocumentIndexTaskScheduler(app)
     app.state.request_metrics = RequestMetrics()
+    app.include_router(register_ci_routes(app))
+    app.include_router(evaluation_router)
 
     @app.middleware("http")
     async def observe_request(request: Request, call_next: RequestResponseEndpoint) -> Response:
@@ -1721,6 +1741,74 @@ async def _schedule_index_task(request: Request, *, owner_user_id: str, task_id:
     )
     if inspect.isawaitable(result):
         await result
+
+
+def _evaluation_job_handler(app: FastAPI) -> Callable[[BackgroundJobContext], Awaitable[None]]:
+    async def handle(context: BackgroundJobContext) -> None:
+        from super_ai.evaluation.dataset import load_builtin_dataset
+        from super_ai.evaluation.executor import EvaluationWorkflowExecutor
+        from super_ai.evaluation.metrics import aggregate_results, evaluate_case
+
+        run_id = str(context.job.payload.get("runId", ""))
+        repository = app.state.evaluation_repository
+        run = await repository.get_run(run_id)
+        if run is None:
+            raise LookupError("Evaluation run not found")
+        if run.status in {"completed", "cancelled"}:
+            return
+        await repository.update_run(run_id, status="running")
+        executor = EvaluationWorkflowExecutor(app.state.ci_diagnosis_repository, Path.cwd())
+        cases = load_builtin_dataset()
+        results: list[dict[str, Any]] = []
+        try:
+            existing = {row.case_id for row in await repository.list_cases(run_id)}
+            for case in cases:
+                if case.case_id in existing:
+                    continue
+                trace = await executor.execute(case)
+                evaluated = evaluate_case(case, trace)
+                results.append(evaluated)
+                await repository.add_case(
+                    id=f"eval_case_{uuid4().hex}",
+                    run_id=run_id,
+                    case_id=case.case_id,
+                    category=case.category,
+                    execution_mode="controlled_fixture",
+                    status="completed",
+                    expected_result={
+                        "rootCause": case.expected_root_cause,
+                        "confirmed": case.should_confirm,
+                    },
+                    actual_result=trace.get("report", {}),
+                    confirmed=bool(trace.get("report", {}).get("confirmed")),
+                    tool_calls=trace.get("tool_calls", []),
+                    evidence_types=[item.get("type") for item in trace.get("evidence", [])],
+                    metrics=evaluated,
+                    latency=float(trace.get("trace", {}).get("latency", 0)),
+                    token_usage=None,
+                    error=None,
+                )
+            metrics = aggregate_results(cases, results)
+            await repository.update_run(
+                run_id,
+                status="completed",
+                metrics=metrics.as_dict(),
+                report={
+                    "dataset": "builtin-v1",
+                    "metrics": metrics.as_dict(),
+                    "caseCount": len(cases),
+                },
+                completed_at=datetime.now(timezone.utc),
+            )
+        except Exception:
+            await repository.update_run(
+                run_id,
+                status="failed",
+                completed_at=datetime.now(timezone.utc),
+            )
+            raise
+
+    return handle
 
 
 def _document_index_job_handler(

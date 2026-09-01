@@ -9,6 +9,8 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from super_ai.ci_diagnosis import models as _ci_diagnosis_models  # noqa: F401
+from super_ai.evaluation import models as _evaluation_models  # noqa: F401
 from super_ai.memory.database import DEFAULT_MEMORY_DATABASE_URL, load_memory_database_settings
 from super_ai.memory.models import Base
 
