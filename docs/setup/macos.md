@@ -1,6 +1,6 @@
 # macOS 安装指南
 
-本指南用于在 macOS 上完整安装并启动 Agent Py。应用服务在本机运行，Docker 只运行 etcd、MinIO、Milvus、Attu 和 Alertmanager。
+本指南用于在 macOS 上完整安装并启动 DevPilot。应用服务在本机运行，Docker 只运行 etcd、MinIO、Milvus、Attu 和 Alertmanager。
 
 ## 1. 安装基础工具
 

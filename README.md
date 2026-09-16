@@ -1,6 +1,6 @@
 # DevPilot
 
-DevPilot 是一个面向软件研发、测试与运维场景的全栈 AI Agent 工作台。项目基于原有 AIOps Agent 工程底座演进，将 CI 失败诊断、测试验证、受控修复和 Agent Evaluation 与知识库、实时对话、智能运维能力整合到统一平台。
+DevPilot 是一个面向软件研发、测试与运维场景的全栈 AI Agent 工作台，将 CI 失败诊断、测试验证、受控修复和 Agent Evaluation 与知识库、实时对话、智能运维能力整合到统一平台。
 
 它解决研发团队在 CI 失败排查中的三个核心问题：测试日志、Git 变更和源代码信息分散；定位过程依赖个人经验；Agent 结论缺乏证据、验证和安全边界。DevPilot 通过 LangGraph 工作流、只读开发工具、结构化 Evidence、Safe Test Runner 和隔离式 Patch，将问题从发现推进到可验证报告。
 
