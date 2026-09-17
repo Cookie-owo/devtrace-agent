@@ -19,6 +19,38 @@ DevPilot 是一个面向软件研发、测试与运维场景的全栈 AI Agent �
   → SSE 实时展示全过程
 ```
 
+## 系统架构
+
+```mermaid
+flowchart LR
+    U[研发 / 测试 / 运维用户] --> FE[Vue 3 + TypeScript 工作台]
+    FE -->|HTTP API| API[FastAPI 应用层]
+    FE <-->|SSE 实时事件| API
+
+    API --> AUTH[认证与 Tenant 隔离]
+    API --> JOB[BackgroundJobRuntime]
+    API --> REPO[Service / Repository]
+    REPO --> DB[(SQLite + SQLAlchemy)]
+
+    JOB --> CHAT[Chat Agent]
+    JOB --> AIOPS[AIOps Workflow]
+    JOB --> CI[CI Diagnosis Workflow]
+    JOB --> EVAL[Evaluation Runner]
+
+    CHAT --> RAG[RAG 混合检索]
+    AIOPS --> MCP[MCP 外部工具]
+    CI --> DEVTOOLS[Git / 日志 / 源码只读工具]
+    CI --> VERIFY[Safe Test Runner]
+    VERIFY --> REPAIR[Isolated Repair]
+
+    RAG --> MILVUS[(Milvus)]
+    RAG --> LLM[Qwen / OpenAI-compatible Model]
+    MCP --> OBS[日志 / 告警 / 指标]
+    EVAL --> CI
+```
+
+系统围绕统一的认证、持久化后台任务和 SSE 事件通道组织 Chat、知识库、AIOps、CI Diagnosis 与 Evaluation，避免为不同 Agent 重复建设运行时。更完整的工作流、安全边界和评测链路见[架构设计](docs/architecture.md)。
+
 ## 全栈工程实现
 
 - **前端**：Vue 3、TypeScript、Vite、Pinia；提供 Chat、Knowledge、AIOps、CI Diagnosis、Evaluation 和 MCP 管理页面，统一处理加载、错误、取消、重试和空状态。
