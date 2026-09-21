@@ -102,7 +102,6 @@ flowchart LR
 - **混合召回与精排**：Milvus 向量搜索与内存 BM25L 关键词检索并行召回，通过 RRF（`k=60`）融合候选，再调用 Qwen rerank 模型精排。
 - **完整检索可解释性**：引用同时展示向量排名与相似度、BM25 排名与分数、RRF 分数、rerank 排名与分数，以及文档来源、chunk 摘要和 metadata。
 - **受控知识工具**：知识检索以 LangChain Tool 提供给 Agent，支持 `topK` 和知识库过滤；检索始终附带当前用户权限条件，无命中时返回空结果而不是编造内容。
-  
 
 ### AIOps 智能诊断
 ![运维 Agent Plan-Execute-Replan 流程图](docs/assets/devpilot-aiops-agent-flow.png)
@@ -113,6 +112,21 @@ flowchart LR
 - **证据链与报告**：持久化原始输入、计划、执行步骤、工具调用、日志/指标/告警/知识引用证据、checkpoint 和 Markdown 报告，报告结论可追溯到证据。
 - **诊断历史与案例库**：支持按用户查询历史任务和完整证据链；成功诊断可自动或手动沉淀为用户知识库中的故障案例并参与后续检索。
 - **诊断反馈**：用户可对单个诊断步骤和最终报告提交可恢复的结构化反馈。
+
+### 测试智能化、验证与受控修复
+- **CI Failure Diagnosis 页面**：支持提交仓库路径、失败摘要和测试日志，后台创建持久化诊断任务，展示 Planner、Executor、Replanner、Verifier 的执行状态。
+- **只读 Developer Tools**：提供 `read_test_log`、`git_diff`、`git_log`、`read_file` 和 `search_code` 五类工具，从测试日志、Git 变更与源码中收集结构化 Evidence。
+- **Evidence-grounded Root Cause**：Evidence 只表示工具或外部数据产生的客观 Observation；Verifier 要求多个独立 Evidence 和多种 Evidence Type 与结论一致，证据不足时保留 Hypothesis。
+- **Safe Test Verification**：根据诊断结论生成 Verification Plan，仅允许白名单测试命令，使用 `shell=False`，限制 Workspace Root、超时、取消和输出大小，并将测试结果写入 ToolCall、Evidence 和 Trace。
+- **Controlled Repair**：在隔离工作区应用 Structured Patch，限制可修改文件范围，保存应用前后 Diff；测试失败、冲突或超出 Repair Budget 时清理临时工作区，原始仓库保持只读。
+- **CI Diagnosis SSE**：通过 SSE 推送诊断开始、计划创建、步骤执行、工具完成、Evidence 创建、验证完成、报告生成和任务结束事件，页面可查看完整执行链与最终报告。
+
+### Agent Evaluation 与 AI 测试
+- **受控评测集**：内置 20 个 Case，覆盖 API/DTO 回归、断言失败、测试数据、依赖、配置、环境、数据库、构建、超时和证据不足等研发故障类型。
+- **真实 Workflow 评测**：Evaluation Runner 进入现有 CI Diagnosis Workflow，持久化 EvaluationRun 和 EvaluationCaseResult，不复制第二套 Agent 流程。
+- **确定性指标**：支持 Root Cause Accuracy、Confirmation Accuracy、Tool Selection Accuracy、Evidence Coverage、Evidence Groundedness、Tool Success Rate、平均步骤、平均工具调用、延迟和失败率。
+- **Fault Injection**：覆盖 Tool Timeout、Tool Failure、空结果、Evidence Conflict、Budget Exhaustion、Workflow Failure 和 Insufficient Evidence，验证 Agent 是否安全结束、避免错误确认和无限循环。
+- **版本回归对比**：支持 Baseline / Candidate Run，对 Prompt、Workflow 或模型版本的指标进行 Delta、Regression 和 Improvement 对比。
 
 ### MCP 与外部系统
 - **真实 CLS MCP**：本机运行腾讯云官方 `cls-mcp-server`，后端通过 SSE 调用真实 CLS 日志、告警、指标和辅助工具，不提供 mock profile 或伪造结果。
