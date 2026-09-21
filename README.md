@@ -1,11 +1,8 @@
 # DevPilot
-
 DevPilot 是一个面向软件研发、测试与运维场景的全栈 AI Agent 工作台，将 CI 失败诊断、测试验证、受控修复和 Agent Evaluation 与知识库、实时对话、智能运维能力整合到统一平台。
-
 它解决研发团队在 CI 失败排查中的三个核心问题：测试日志、Git 变更和源代码信息分散；定位过程依赖个人经验；Agent 结论缺乏证据、验证和安全边界。DevPilot 通过 LangGraph 工作流、只读开发工具、结构化 Evidence、Safe Test Runner 和隔离式 Patch，将问题从发现推进到可验证报告。
 
 ## 核心产品闭环
-
 ```text
 用户提交 CI 失败
   → FastAPI 创建任务
@@ -22,21 +19,15 @@ DevPilot 是一个面向软件研发、测试与运维场景的全栈 AI Agent �
 ## 系统架构
 
 ### 业务流程
-
 ![DevPilot 业务流程图](docs/assets/devpilot-business-flow.svg)
-
 DevPilot 面向研发、测试与运维人员提供统一的 AI 工作台。用户可以从 Chat、知识库、AIOps 告警或 CI 失败诊断入口提交问题，系统通过 FastAPI 接口创建任务，并由 BackgroundJobRuntime 异步调度对应的 Agent Workflow。Chat Agent 负责对话与知识问答，AIOps Agent 负责告警分析，CI Diagnosis Agent 则结合测试日志、Git 变更和源码搜索定位测试失败原因。
-
 在诊断过程中，Agent 按照“失败分析 → 计划生成 → 工具执行 → Evidence 收集 → 重规划 → Verifier 校验 → 报告生成”的流程推进。工具返回的客观结果会转换为结构化 Evidence，只有在多个独立来源能够支持结论时才确认 Root Cause，否则保留为待验证 Hypothesis。对于需要进一步确认的问题，系统通过 Safe Test Runner 执行受控测试，并在隔离工作区内完成 Structured Patch 验证，测试失败时清理临时工作区并保持原始仓库只读。整个过程通过 SSE 推送计划、步骤、Tool Call、Evidence、验证和报告状态。
 
 ### 系统分层
-
 ![DevPilot 系统架构图](docs/assets/devpilot-system-architecture.svg)
 
 系统采用分层架构组织前端、接口、Agent、核心组件、数据与外部系统。前端使用 Vue 3、TypeScript 和 Pinia 提供 Chat、Knowledge、AIOps、MCP、CI Diagnosis 与 Evaluation 页面；FastAPI 负责认证、任务创建、查询和 SSE 接口，并通过 Service / Repository 层访问 SQLAlchemy 管理的 SQLite 数据。
-
 Agent 层按场景拆分为 Chat Agent、AIOps Agent、CI Diagnosis Agent、Verification / Repair 和 Evaluation Runner。LangGraph 负责 CI Diagnosis 的状态编排，统一的 ToolResult、Evidence、Verifier 和 Diagnosis Budget 约束工具调用和结论生成。RAG 层使用 Milvus、BM25L、RRF 和 Rerank 完成混合检索；MCP 层连接日志、告警和指标等外部能力；CI 诊断使用测试日志、Git Diff、Git Log、源码读取和代码搜索等只读工具。
-
 基础设施层以 SQLite 持久化用户、会话、文档、任务、步骤、Tool Call、Evidence 和 Evaluation 结果，Milvus 保存知识库向量数据，Docker Compose 管理 etcd、MinIO、Milvus、Attu 和 Alertmanager。平台通过 Bearer Session、Owner / Tenant Scope、Workspace Guard、命令白名单、Lease、Retry、Cancel 和 Recovery 形成统一的安全与可靠性边界。
 
 ```mermaid
@@ -70,25 +61,21 @@ flowchart LR
 系统围绕统一的认证、持久化后台任务和 SSE 事件通道组织 Chat、知识库、AIOps、CI Diagnosis 与 Evaluation，避免为不同 Agent 重复建设运行时。更完整的工作流、安全边界和评测链路见[架构设计](docs/architecture.md)。
 
 ## 全栈工程实现
-
 - **前端**：Vue 3、TypeScript、Vite、Pinia；提供 Chat、Knowledge、AIOps、CI Diagnosis、Evaluation 和 MCP 管理页面，统一处理加载、错误、取消、重试和空状态。
 - **后端**：FastAPI Router / Service / Repository 分层，SQLAlchemy + SQLite 持久化，Alembic 管理迁移，BackgroundJobRuntime 执行长任务。
 - **前后端协作**：`packages/api-contracts` 维护共享 HTTP、错误码和 SSE 类型，Typed API Client / SSE Client 保证接口一致性。
 - **实时与可观测性**：SSE 推送任务状态、计划、步骤、工具调用、Evidence、验证和报告事件；Trace 记录延迟、失败原因、预算和审计信息。
 
 ## 研发测试智能化
-
 - **CI 失败诊断**：通过测试日志、Git Diff、Git Log、源码读取和代码搜索，定位 API/DTO 回归、断言失败、依赖、配置、构建、超时和证据不足等问题。
 - **Safe Test Verification**：仅允许白名单测试命令，限制 Workspace Root、超时、取消和输出大小，验证诊断结论是否成立。
 - **Controlled Repair**：在隔离工作区应用结构化 Patch，限制修改文件范围；测试失败时回滚，原始仓库不写入，不自动 Commit/Push/PR。
 - **Agent Evaluation**：固定 Dataset 批量执行真实 CI Diagnosis Workflow，统计根因、确认、工具选择、证据支撑度、工具成功率、步骤数、延迟和失败率，并支持 Fault Injection。
 
 ## 当前功能
-
 以下能力均已在当前代码中实现，不包含尚未落地的规划项。
 
 ### 账号、权限与工作台
-
 - **用户认证**：支持注册、登录、登出、认证状态恢复和当前用户信息查询；密码使用 Argon2 安全哈希，不保存明文。
 - **用户与 tenant 隔离**：聊天、消息、知识库、文档、向量、索引任务、MCP 连接、AIOps、证据、报告、反馈和工具审计均按当前用户隔离，越权访问返回统一权限错误。
 - **中文响应式工作台**：提供对话、知识库、智能诊断和 MCP 连接四个受保护路由，桌面与移动端共用一致导航和状态表达。
@@ -96,7 +83,7 @@ flowchart LR
 - **统一操作反馈**：成功、提示和错误消息使用全局反馈组件展示，支持手动关闭并在 3 秒后自动消失。
 
 ### 流式聊天与 Agent
-
+![对话 Agent ReAct 流程图](docs/assets/devpilot-chat-agent-flow.png)
 - **持久化会话**：支持创建、切换、倒序查询、自动生成标题、清空和删除会话；SQLite 是会话与消息的主存储。
 - **流式聊天**：使用 `langchain` `create_agent`、OpenAI-compatible Qwen 和 SSE 输出内容增量、工具调用、引用、完成与错误事件，前端以可感知的打字机节奏渲染回答。
 - **自主工具调用**：模型根据问题自行决定是否调用知识库、当前时间或已启用 MCP 工具，不把 RAG 固定为每次对话的前置流程。
@@ -107,7 +94,7 @@ flowchart LR
 - **内容反馈**：用户可对助手回答和单条知识引用点赞、点踩，填写问题类型、评论和纠正内容；反馈可更新、删除并在重新打开会话后恢复。
 
 ### 知识库、索引与 RAG
-
+![知识库 Agent 检索增强流程图](docs/assets/devpilot-knowledge-agent-flow.png)
 - **文档管理**：支持上传 Markdown 和 PDF，记录文件名、大小、MIME、SHA-256、上传时间与索引状态；支持重复文件检测、明确覆盖和删除时同步清理向量。
 - **切分策略与预览**：上传前可选择固定字符、Markdown 标题或段落切分；固定字符支持长度和重叠参数，前端可预览有界 chunk 结果。
 - **持久索引任务**：文档索引在后台执行，状态包含排队、执行中、成功、失败和取消；失败原因会持久化，并支持手动重试和重建索引。
@@ -115,9 +102,10 @@ flowchart LR
 - **混合召回与精排**：Milvus 向量搜索与内存 BM25L 关键词检索并行召回，通过 RRF（`k=60`）融合候选，再调用 Qwen rerank 模型精排。
 - **完整检索可解释性**：引用同时展示向量排名与相似度、BM25 排名与分数、RRF 分数、rerank 排名与分数，以及文档来源、chunk 摘要和 metadata。
 - **受控知识工具**：知识检索以 LangChain Tool 提供给 Agent，支持 `topK` 和知识库过滤；检索始终附带当前用户权限条件，无命中时返回空结果而不是编造内容。
+  
 
 ### AIOps 智能诊断
-
+![运维 Agent Plan-Execute-Replan 流程图](docs/assets/devpilot-aiops-agent-flow.png)
 - **Plan-Execute-Replan**：使用 LangGraph 实现 `Planner -> Executor -> Replanner -> Report`，Planner 先检索 SOP，Executor 调用真实工具，Replanner 决定继续、调整或生成报告。
 - **真实告警入口**：聚合 Prometheus v1 和 Alertmanager v2 活跃告警，用户可刷新告警并从某条告警直接创建诊断任务。
 - **持久后台执行**：诊断由 SQLite durable job runtime 调度，不阻塞 API；页面展示排队、执行、取消、失败和完成状态，并支持用户取消任务。
@@ -127,14 +115,12 @@ flowchart LR
 - **诊断反馈**：用户可对单个诊断步骤和最终报告提交可恢复的结构化反馈。
 
 ### MCP 与外部系统
-
 - **真实 CLS MCP**：本机运行腾讯云官方 `cls-mcp-server`，后端通过 SSE 调用真实 CLS 日志、告警、指标和辅助工具，不提供 mock profile 或伪造结果。
 - **用户级 MCP 连接管理**：前端支持创建、编辑、启停和删除多个 MCP Server，配置 SSE 或 Streamable HTTP、URL、超时和重试次数。
 - **连接检查与工具发现**：可从页面检查 MCP Server，展示真实连接结果和工具列表；聊天与 AIOps 共用同一份当前用户连接配置。
 - **调用治理**：MCP 支持超时、重试、同名工具保护和明确失败；每次调用记录工具名、参数、结果摘要、耗时、状态、错误及关联会话或诊断任务。
 
 ### 后台任务、存储与平台能力
-
 - **Durable job runtime**：SQLite 保存后台任务、事件、尝试次数和租约；Worker 支持并发领取、心跳续租、进程重启恢复、指数退避重试、超时和协作式取消。
 - **Repository 存储边界**：SQLAlchemy 模型和 Repository 隔离业务层与 SQLite 细节，Alembic 管理迁移，并为后续替换 PostgreSQL 保留边界。
 - **统一 API 契约**：`packages/api-contracts` 是前后端共享的 HTTP、错误码、OpenAPI 和 SSE 类型来源，覆盖认证、聊天、知识库、后台任务、反馈、MCP 和 AIOps。
@@ -144,7 +130,6 @@ flowchart LR
 - **本地优先启动**：Docker Compose 仅托管 etcd、MinIO、Milvus、Attu 和 Alertmanager；前端、后端与 CLS MCP Server 使用 macOS/Linux/Windows 本机启动脚本运行。
 
 ## 前端入口
-
 | 路径 | 功能 |
 |------|------|
 | `/login`、`/register` | 登录与注册 |
@@ -156,7 +141,6 @@ flowchart LR
 | `/evaluation` | Evaluation Dataset、运行结果和指标对比 |
 
 ## 项目结构
-
 ```text
 apps/backend/          FastAPI、LangChain/LangGraph、SQLite、Alembic、uv
 apps/frontend/         Vue 3、Vite、TypeScript
@@ -171,7 +155,6 @@ docs/                  安装、架构与运维文档
 ## 三平台安装
 
 请先按当前操作系统完成完整依赖安装：
-
 - [macOS 安装指南](docs/setup/macos.md)
 - [Linux 安装指南](docs/setup/linux.md)
 - [Windows 安装指南](docs/setup/windows.md)
@@ -179,14 +162,11 @@ docs/                  安装、架构与运维文档
 三个指南均覆盖 Git、Docker、Node/npm、uv 与官方 `cls-mcp-server`。
 
 ## 配置方式
-
 应用只从本地 JSON 配置文件读取项目配置，不读取本机 `.env` 文件或环境变量。首次使用时，从不含密钥的模板创建本地配置：
-
 ```bash
 cp config/project.template.json config/project.json
 cp config/user.project.template.json config/user.project.json
 ```
-
 - `config/project.json`：基础运行配置，仅保存在本机。
 - `config/user.project.json`：个人模型与 CLS 配置，仅保存在本机并覆盖基础配置。
 - `config/project.template.json`、`config/user.project.template.json`：可安全提交的配置模板。
@@ -194,7 +174,6 @@ cp config/user.project.template.json config/user.project.json
 两个本地配置文件均被 Git 忽略。请阅读[配置与运维教程](docs/operations-and-monitoring.md)填写模型密钥、CLS 凭据与其他本机配置，禁止将真实凭据加入版本控制。
 
 ## 测试工程与质量门禁
-
 项目将 Agent 本身作为需要验证的软件系统，测试覆盖：
 
 - 后端单元、Repository、数据库迁移和 API 测试；
@@ -207,11 +186,9 @@ cp config/user.project.template.json config/user.project.json
 提交前质量检查：`uv run pytest`、`uv run ruff check .`、`uv run pyright`、`npm run frontend:test`、`npm run frontend:typecheck` 和 `npm run contracts:typecheck`。
 
 ## 本地开发
-
 Docker Compose **只**负责运行 etcd、MinIO、Milvus、Attu 和 Alertmanager。CLS MCP Server、后端与前端均直接在本机运行，不会通过 Compose 启动。
 
 ### 一键启动
-
 在仓库根目录执行：
 
 ```bash
@@ -227,9 +204,7 @@ scripts\start-local.bat
 启动脚本会启动基础设施容器、准备项目依赖、执行 SQLite 迁移，并在本机启动 MCP、后端和前端。进程日志写入 `apps/backend/var/`。
 
 ### 手动启动
-
 安装前端和后端依赖：
-
 ```bash
 npm install
 cd apps/backend
@@ -239,27 +214,23 @@ uv run alembic upgrade head
 ```
 
 在仓库根目录启动所有容器基础设施：
-
 ```bash
 docker compose -f infra/compose.yaml up -d etcd minio milvus attu alertmanager
 ```
 
 使用 `config/project.json` 中 `clsMcpServer` 的配置启动官方 CLS MCP Server，然后启动后端：
-
 ```bash
 cd apps/backend
 uv run uvicorn super_ai.api.app:create_app --factory --host 127.0.0.1 --port 8000
 ```
 
 在第二个终端启动前端：
-
 ```bash
 cd apps/frontend
 npm run dev -- --host 127.0.0.1
 ```
 
 本地地址：
-
 - 前端：`http://127.0.0.1:5173`
 - 后端：`http://127.0.0.1:8000`
 - 后端就绪检查：`http://127.0.0.1:8000/ready`
@@ -275,13 +246,11 @@ npm run dev -- --host 127.0.0.1
 ## 验证命令
 
 在仓库根目录执行 OpenSpec 验证：
-
 ```bash
 openspec validate --all
 ```
 
 在 `apps/backend` 执行后端检查：
-
 ```bash
 uv run ruff check .
 uv run pyright
@@ -289,7 +258,6 @@ uv run pytest
 ```
 
 在 `apps/frontend` 执行前端检查：
-
 ```bash
 npm run typecheck
 npm run test
