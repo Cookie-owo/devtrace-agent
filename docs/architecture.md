@@ -4,6 +4,8 @@
 
 ![DevPilot 业务流程图](assets/devpilot-business-flow.svg)
 
+![DevPilot 系统架构图](assets/devpilot-system-architecture.svg)
+
 ## 一、系统总览
 
 ```mermaid

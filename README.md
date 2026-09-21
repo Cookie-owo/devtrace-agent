@@ -23,6 +23,8 @@ DevPilot 是一个面向软件研发、测试与运维场景的全栈 AI Agent �
 
 ![DevPilot 业务流程图](docs/assets/devpilot-business-flow.svg)
 
+![DevPilot 系统架构图](docs/assets/devpilot-system-architecture.svg)
+
 ```mermaid
 flowchart LR
     U[研发 / 测试 / 运维用户] --> FE[Vue 3 + TypeScript 工作台]

@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+  <title id="title">DevPilot 系统架构图</title>
+  <desc id="desc">DevPilot 分层系统架构：API 接口层、Agent 能力层、核心组件层、知识与数据层、基础设施与安全层。</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0f172a" flood-opacity=".1"/></filter>
+    <style>
+      .title{font:700 32px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#142b43}.subtitle{font:400 15px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#698096}.section{font:700 18px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#314d68}.label{font:600 15px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#253f58}.small{font:400 12px 'Microsoft YaHei','PingFang SC',sans-serif;fill:#6c8295}.box{filter:url(#shadow)}
+    </style>
+  </defs>
+  <rect width="1600" height="1120" fill="#f6f9fc"/>
+  <rect x="28" y="24" width="1544" height="1072" rx="15" fill="#fff" stroke="#d7e3ee" stroke-width="2"/>
+  <text x="800" y="66" text-anchor="middle" class="title">DevPilot 系统架构</text>
+  <text x="800" y="94" text-anchor="middle" class="subtitle">全栈 AI 研发效能工作台：统一 API、Agent、知识检索、任务运行与安全验证能力</text>
+
+  <rect x="54" y="122" width="1492" height="146" rx="12" fill="#eaf2ff" stroke="#5e8bd8" stroke-width="2.5"/>
+  <text x="800" y="151" text-anchor="middle" class="section">API 接口层 / 前端工作台</text>
+  <g class="box">
+    <rect x="76" y="177" width="168" height="58" rx="9" fill="#fff" stroke="#6f99dc" stroke-width="2"/><text x="160" y="212" text-anchor="middle" class="label">认证 / 用户</text>
+    <rect x="266" y="177" width="168" height="58" rx="9" fill="#fff" stroke="#6f99dc" stroke-width="2"/><text x="350" y="212" text-anchor="middle" class="label">/chat · /chat_stream</text>
+    <rect x="456" y="177" width="168" height="58" rx="9" fill="#fff" stroke="#6f99dc" stroke-width="2"/><text x="540" y="212" text-anchor="middle" class="label">/knowledge</text>
+    <rect x="646" y="177" width="168" height="58" rx="9" fill="#fff" stroke="#6f99dc" stroke-width="2"/><text x="730" y="212" text-anchor="middle" class="label">/aiops · /mcp</text>
+    <rect x="836" y="177" width="168" height="58" rx="9" fill="#fff" stroke="#6f99dc" stroke-width="2"/><text x="920" y="212" text-anchor="middle" class="label">/ci-diagnosis</text>
+    <rect x="1026" y="177" width="168" height="58" rx="9" fill="#fff" stroke="#6f99dc" stroke-width="2"/><text x="1110" y="212" text-anchor="middle" class="label">/evaluation</text>
+    <rect x="1216" y="177" width="288" height="58" rx="9" fill="#fff" stroke="#6f99dc" stroke-width="2"/><text x="1360" y="212" text-anchor="middle" class="label">Vue 3 + TypeScript + Pinia + SSE Client</text>
+  </g>
+
+  <rect x="54" y="292" width="1492" height="184" rx="12" fill="#fff4d7" stroke="#dfb74c" stroke-width="2.5"/>
+  <text x="800" y="321" text-anchor="middle" class="section">Agent 能力层</text>
+  <g class="box">
+    <rect x="76" y="349" width="260" height="91" rx="10" fill="#fff" stroke="#dfb74c" stroke-width="2"/><text x="206" y="382" text-anchor="middle" class="label">Chat Agent</text><text x="206" y="406" text-anchor="middle" class="small">ReAct · Memory · Prompt / Skill</text><text x="206" y="424" text-anchor="middle" class="small">流式回答与工具审计</text>
+    <rect x="360" y="349" width="260" height="91" rx="10" fill="#fff" stroke="#dfb74c" stroke-width="2"/><text x="490" y="382" text-anchor="middle" class="label">AIOps Agent</text><text x="490" y="406" text-anchor="middle" class="small">Plan → Execute → Replan</text><text x="490" y="424" text-anchor="middle" class="small">告警、日志、指标、报告</text>
+    <rect x="644" y="349" width="260" height="91" rx="10" fill="#fff" stroke="#dfb74c" stroke-width="2"/><text x="774" y="382" text-anchor="middle" class="label">CI Diagnosis Agent</text><text x="774" y="406" text-anchor="middle" class="small">Analyzer → Planner → Executor</text><text x="774" y="424" text-anchor="middle" class="small">Evidence → Verifier → Report</text>
+    <rect x="928" y="349" width="260" height="91" rx="10" fill="#fff" stroke="#dfb74c" stroke-width="2"/><text x="1058" y="382" text-anchor="middle" class="label">Verification / Repair</text><text x="1058" y="406" text-anchor="middle" class="small">Safe Test Runner</text><text x="1058" y="424" text-anchor="middle" class="small">Isolated Workspace + Patch</text>
+    <rect x="1212" y="349" width="292" height="91" rx="10" fill="#fff" stroke="#dfb74c" stroke-width="2"/><text x="1358" y="382" text-anchor="middle" class="label">Evaluation Runner</text><text x="1358" y="406" text-anchor="middle" class="small">Dataset → Workflow → Metrics</text><text x="1358" y="424" text-anchor="middle" class="small">Baseline / Candidate 对比</text>
+  </g>
+
+  <rect x="54" y="500" width="1492" height="214" rx="12" fill="#eee8ff" stroke="#8966cf" stroke-width="2.5"/>
+  <text x="800" y="529" text-anchor="middle" class="section">核心组件层</text>
+  <g class="box">
+    <rect x="76" y="557" width="210" height="62" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="181" y="594" text-anchor="middle" class="label">FastAPI Router</text>
+    <rect x="310" y="557" width="210" height="62" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="415" y="594" text-anchor="middle" class="label">Service / Repository</text>
+    <rect x="544" y="557" width="210" height="62" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="649" y="594" text-anchor="middle" class="label">LangGraph State</text>
+    <rect x="778" y="557" width="210" height="62" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="883" y="594" text-anchor="middle" class="label">Evidence / Verifier</text>
+    <rect x="1012" y="557" width="210" height="62" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="1117" y="594" text-anchor="middle" class="label">MCP Client / Tool</text>
+    <rect x="1256" y="557" width="248" height="62" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="1380" y="594" text-anchor="middle" class="label">Shared API Contracts</text>
+    <rect x="76" y="640" width="210" height="49" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="181" y="670" text-anchor="middle" class="label">BackgroundJobRuntime</text>
+    <rect x="310" y="640" width="210" height="49" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="415" y="670" text-anchor="middle" class="label">ToolResult / Audit</text>
+    <rect x="544" y="640" width="210" height="49" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="649" y="670" text-anchor="middle" class="label">Diagnosis Budget</text>
+    <rect x="778" y="640" width="210" height="49" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="883" y="670" text-anchor="middle" class="label">Fetch + ReadableStream</text>
+    <rect x="1012" y="640" width="210" height="49" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="1117" y="670" text-anchor="middle" class="label">Ruff / Pyright / Pytest</text>
+    <rect x="1256" y="640" width="248" height="49" rx="9" fill="#fff" stroke="#916ed6" stroke-width="2"/><text x="1380" y="670" text-anchor="middle" class="label">SQLAlchemy + Alembic</text>
+  </g>
+
+  <rect x="54" y="738" width="1492" height="190" rx="12" fill="#e5f6e9" stroke="#58a66e" stroke-width="2.5"/>
+  <text x="800" y="767" text-anchor="middle" class="section">知识、数据与外部系统层</text>
+  <g class="box">
+    <rect x="76" y="795" width="268" height="92" rx="10" fill="#fff" stroke="#58a66e" stroke-width="2"/><text x="210" y="829" text-anchor="middle" class="label">RAG 知识库</text><text x="210" y="852" text-anchor="middle" class="small">Markdown / PDF · Chunk</text><text x="210" y="870" text-anchor="middle" class="small">Embedding · Milvus · BM25L · RRF · Rerank</text>
+    <rect x="374" y="795" width="268" height="92" rx="10" fill="#fff" stroke="#58a66e" stroke-width="2"/><text x="508" y="829" text-anchor="middle" class="label">SQLite 持久化</text><text x="508" y="852" text-anchor="middle" class="small">User · Chat · Document</text><text x="508" y="870" text-anchor="middle" class="small">Task · Evidence · Evaluation</text>
+    <rect x="672" y="795" width="268" height="92" rx="10" fill="#fff" stroke="#58a66e" stroke-width="2"/><text x="806" y="829" text-anchor="middle" class="label">研发测试数据</text><text x="806" y="852" text-anchor="middle" class="small">Test Log · Git Diff / Log</text><text x="806" y="870" text-anchor="middle" class="small">Source Code · Fixture · Dataset</text>
+    <rect x="970" y="795" width="268" height="92" rx="10" fill="#fff" stroke="#58a66e" stroke-width="2"/><text x="1104" y="829" text-anchor="middle" class="label">MCP 外部系统</text><text x="1104" y="852" text-anchor="middle" class="small">CLS 日志 · Prometheus</text><text x="1104" y="870" text-anchor="middle" class="small">Alertmanager · 外部知识</text>
+    <rect x="1268" y="795" width="236" height="92" rx="10" fill="#fff" stroke="#58a66e" stroke-width="2"/><text x="1386" y="829" text-anchor="middle" class="label">模型服务</text><text x="1386" y="852" text-anchor="middle" class="small">Qwen / OpenAI-compatible</text><text x="1386" y="870" text-anchor="middle" class="small">Chat · Embedding · Rerank</text>
+  </g>
+
+  <rect x="54" y="952" width="1492" height="110" rx="12" fill="#f2f5f8" stroke="#9aabba" stroke-width="2"/>
+  <text x="800" y="982" text-anchor="middle" class="section">平台安全与运行边界</text>
+  <g class="box">
+    <rect x="90" y="1001" width="250" height="40" rx="8" fill="#fff" stroke="#9aabba"/><text x="215" y="1026" text-anchor="middle" class="small">Bearer Session + Argon2</text>
+    <rect x="370" y="1001" width="250" height="40" rx="8" fill="#fff" stroke="#9aabba"/><text x="495" y="1026" text-anchor="middle" class="small">Owner / Tenant Scope</text>
+    <rect x="650" y="1001" width="250" height="40" rx="8" fill="#fff" stroke="#9aabba"/><text x="775" y="1026" text-anchor="middle" class="small">Workspace Guard + Allowlist</text>
+    <rect x="930" y="1001" width="250" height="40" rx="8" fill="#fff" stroke="#9aabba"/><text x="1055" y="1026" text-anchor="middle" class="small">Lease / Retry / Cancel / Recovery</text>
+    <rect x="1210" y="1001" width="294" height="40" rx="8" fill="#fff" stroke="#9aabba"/><text x="1357" y="1026" text-anchor="middle" class="small">Docker Compose 基础设施 + Health Check</text>
+  </g>
+</svg>
