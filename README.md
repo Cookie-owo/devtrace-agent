@@ -21,9 +21,23 @@ DevPilot 是一个面向软件研发、测试与运维场景的全栈 AI Agent �
 
 ## 系统架构
 
+### 业务流程
+
 ![DevPilot 业务流程图](docs/assets/devpilot-business-flow.svg)
 
+DevPilot 面向研发、测试与运维人员提供统一的 AI 工作台。用户可以从 Chat、知识库、AIOps 告警或 CI 失败诊断入口提交问题，系统通过 FastAPI 接口创建任务，并由 BackgroundJobRuntime 异步调度对应的 Agent Workflow。Chat Agent 负责对话与知识问答，AIOps Agent 负责告警分析，CI Diagnosis Agent 则结合测试日志、Git 变更和源码搜索定位测试失败原因。
+
+在诊断过程中，Agent 按照“失败分析 → 计划生成 → 工具执行 → Evidence 收集 → 重规划 → Verifier 校验 → 报告生成”的流程推进。工具返回的客观结果会转换为结构化 Evidence，只有在多个独立来源能够支持结论时才确认 Root Cause，否则保留为待验证 Hypothesis。对于需要进一步确认的问题，系统通过 Safe Test Runner 执行受控测试，并在隔离工作区内完成 Structured Patch 验证，测试失败时清理临时工作区并保持原始仓库只读。整个过程通过 SSE 推送计划、步骤、Tool Call、Evidence、验证和报告状态。
+
+### 系统分层
+
 ![DevPilot 系统架构图](docs/assets/devpilot-system-architecture.svg)
+
+系统采用分层架构组织前端、接口、Agent、核心组件、数据与外部系统。前端使用 Vue 3、TypeScript 和 Pinia 提供 Chat、Knowledge、AIOps、MCP、CI Diagnosis 与 Evaluation 页面；FastAPI 负责认证、任务创建、查询和 SSE 接口，并通过 Service / Repository 层访问 SQLAlchemy 管理的 SQLite 数据。
+
+Agent 层按场景拆分为 Chat Agent、AIOps Agent、CI Diagnosis Agent、Verification / Repair 和 Evaluation Runner。LangGraph 负责 CI Diagnosis 的状态编排，统一的 ToolResult、Evidence、Verifier 和 Diagnosis Budget 约束工具调用和结论生成。RAG 层使用 Milvus、BM25L、RRF 和 Rerank 完成混合检索；MCP 层连接日志、告警和指标等外部能力；CI 诊断使用测试日志、Git Diff、Git Log、源码读取和代码搜索等只读工具。
+
+基础设施层以 SQLite 持久化用户、会话、文档、任务、步骤、Tool Call、Evidence 和 Evaluation 结果，Milvus 保存知识库向量数据，Docker Compose 管理 etcd、MinIO、Milvus、Attu 和 Alertmanager。平台通过 Bearer Session、Owner / Tenant Scope、Workspace Guard、命令白名单、Lease、Retry、Cancel 和 Recovery 形成统一的安全与可靠性边界。
 
 ```mermaid
 flowchart LR
