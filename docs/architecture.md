@@ -2,6 +2,8 @@
 
 本文只描述当前仓库已经实现的模块与调用关系，不包含规划中的能力。
 
+![DevPilot 业务流程图](assets/devpilot-business-flow.svg)
+
 ## 一、系统总览
 
 ```mermaid
