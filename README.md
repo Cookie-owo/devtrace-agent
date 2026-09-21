@@ -73,7 +73,7 @@ flowchart LR
 - **Agent Evaluation**：固定 Dataset 批量执行真实 CI Diagnosis Workflow，统计根因、确认、工具选择、证据支撑度、工具成功率、步骤数、延迟和失败率，并支持 Fault Injection。
 
 ## 当前功能
-以下能力均已在当前代码中实现，不包含尚未落地的规划项。
+以下内容对应当前仓库已落地的页面、接口、工作流和测试能力；评测部分使用受控 Fixture 与 Fault Injection，具体基准口径见 [Benchmark](docs/benchmark.md)。
 
 ### 账号、权限与工作台
 - **用户认证**：支持注册、登录、登出、认证状态恢复和当前用户信息查询；密码使用 Argon2 安全哈希，不保存明文。
@@ -114,6 +114,7 @@ flowchart LR
 - **诊断反馈**：用户可对单个诊断步骤和最终报告提交可恢复的结构化反馈。
 
 ### 测试智能化、验证与受控修复
+![DevPilot 测试智能化与受控修复流程图](docs/assets/devpilot-test-repair-flow.jpg)
 - **CI Failure Diagnosis 页面**：支持提交仓库路径、失败摘要和测试日志，后台创建持久化诊断任务，展示 Planner、Executor、Replanner、Verifier 的执行状态。
 - **只读 Developer Tools**：提供 `read_test_log`、`git_diff`、`git_log`、`read_file` 和 `search_code` 五类工具，从测试日志、Git 变更与源码中收集结构化 Evidence。
 - **Evidence-grounded Root Cause**：Evidence 只表示工具或外部数据产生的客观 Observation；Verifier 要求多个独立 Evidence 和多种 Evidence Type 与结论一致，证据不足时保留 Hypothesis。
@@ -122,7 +123,8 @@ flowchart LR
 - **CI Diagnosis SSE**：通过 SSE 推送诊断开始、计划创建、步骤执行、工具完成、Evidence 创建、验证完成、报告生成和任务结束事件，页面可查看完整执行链与最终报告。
 
 ### Agent Evaluation 与 AI 测试
-- **受控评测集**：内置 20 个 Case，覆盖 API/DTO 回归、断言失败、测试数据、依赖、配置、环境、数据库、构建、超时和证据不足等研发故障类型。
+![Agent Evaluation 与 AI 测试流程图](docs/assets/devpilot-agent-evaluation-flow.jpg)
+- **受控评测集**：内置 20 个受控 Case，覆盖 API/DTO 回归、断言失败、测试数据、依赖、配置、环境、数据库、构建、超时和证据不足等研发故障类型；Case 由可复用 Fixture、受控输入和 Fault Injection 组成，不等同于 20 个线上真实仓库。
 - **真实 Workflow 评测**：Evaluation Runner 进入现有 CI Diagnosis Workflow，持久化 EvaluationRun 和 EvaluationCaseResult，不复制第二套 Agent 流程。
 - **确定性指标**：支持 Root Cause Accuracy、Confirmation Accuracy、Tool Selection Accuracy、Evidence Coverage、Evidence Groundedness、Tool Success Rate、平均步骤、平均工具调用、延迟和失败率。
 - **Fault Injection**：覆盖 Tool Timeout、Tool Failure、空结果、Evidence Conflict、Budget Exhaustion、Workflow Failure 和 Insufficient Evidence，验证 Agent 是否安全结束、避免错误确认和无限循环。
